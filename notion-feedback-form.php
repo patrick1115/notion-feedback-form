@@ -300,7 +300,32 @@ function nff_display_feedback_shortcode() {
         $feedback = $props['Feedback']['rich_text'][0]['text']['content'] ?? '';
         $upvotes = $props['Upvotes']['number'] ?? 0;
         $pageId = $item['id'];
-
+          //tags and color based on notion's color
+        $tag = $props['Tags']['select']['name'] ?? '';
+        $tagStyle = '';
+        switch ($tag) {
+            case 'New Request':
+                $tagStyle = 'background-color:#1b75bc; color:#fff;'; // Blue
+                break;
+            case 'Voting':
+                $tagStyle = 'background-color:#e7bb37; color:#fff;'; // Yellow
+                break;
+            case 'Complete':
+                $tagStyle = 'background-color:#22c55e; color:#fff;'; // Green
+                break;
+            case 'Planning': 
+                $tagStyle = 'background-color:#ef404a; color:#fff;'; // Red
+                break;
+            case 'In Progress':
+                $tagStyle = 'background-color:#91ca6b; color:#fff;'; //AO Green
+                break;
+            case 'Testing':
+                $tagStyle = 'background-color:#83b4da; color:#fff;'; //Medium blue
+                break;
+            default:
+                $tagStyle = 'background-color:#e5e7eb; color:#fff;'; // Light gray 
+                break;
+        } 
         echo '<div class="nff-comment" style="border:1px solid #ccc; border-radius:6px; padding:15px; display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">';
 
         echo '<div style="flex-grow:1;">';
@@ -308,6 +333,9 @@ function nff_display_feedback_shortcode() {
         echo '<p style="margin:0; font-size:15px;">' . esc_html($feedback) . '</p>';
         echo '</div>';
 
+        if (!empty($tag)) {
+            echo '<span style="display:inline-block; top:10px; right:10px; display:inline-block; border-radius:12px; padding:4px 10px; font-size:12px; font-weight:500; ' . esc_attr($tagStyle) . '">' . esc_html($tag) . '</span>';
+        }
         echo '<div class="nff-feedback-upvote" style="display:flex; flex-direction:column; align-items:center; gap:5px;">';
         echo '<button class="nff-upvote-btn" data-id="' . esc_attr($pageId) . '" style="font-size:20px; border:none; background:none; cursor:pointer;">↑</button>';
         echo '<span class="nff-upvote-count" style="font-size:14px;">' . intval($upvotes) . '</span>';
