@@ -2,7 +2,11 @@
 /**
  * Plugin Name: Notion Feedback Form
  * Description: Simple feedback form that sends entries to Notion via the Notion API.
- * Version: 1.0
+ *              Features: 
+ *                  - First and last name added to form. 
+ *                  - Upvote button color change on hover. 
+ *                  - Restricts user from multiple upvotes per session. 
+ * Version: 1.10
  * Author: Patrick 
  */
 
