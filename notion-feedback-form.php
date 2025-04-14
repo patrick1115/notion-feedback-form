@@ -7,8 +7,8 @@
  */
 
 // Replace these with Notion API credentials
-define('NOTION_API_KEY', 'NOTION API KEY');
-define('NOTION_DATABASE_ID', 'DATABASE ID');
+define('NOTION_API_KEY', 'NOTION_API_KEY');
+define('NOTION_DATABASE_ID', 'DATABASE_ID');
 
 // Enqueue inline JavaScript for AJAX submission
 function nff_enqueue_scripts() {
@@ -29,7 +29,9 @@ function nff_enqueue_scripts() {
                 body: new URLSearchParams({
                     action: 'nff_submit_feedback',
                     name: this.name.value, 
-                    feedback: feedback
+                    feedback: feedback,
+                    first_name: this.first_name.value,
+                    last_name: this.last_name.value
                 })
             })
             .then(res => res.text())
@@ -48,8 +50,10 @@ add_action('wp_footer', 'nff_enqueue_scripts');
 function nff_handle_feedback_ajax() {
     $name = sanitize_text_field($_POST['name']);
     $feedback = sanitize_textarea_field($_POST['feedback']);
-    $date = date('Y-m-d'); 
-    
+    $firstName = sanitize_text_field($_POST['first_name']);
+    $lastName = sanitize_text_field($_POST['last_name']);
+    $date = date('Y-m-d'); // Notion expects ISO date format
+
     $payload = [
         "parent" => ["database_id" => NOTION_DATABASE_ID],
         "properties" => [
@@ -65,6 +69,16 @@ function nff_handle_feedback_ajax() {
             ],
             "Upvotes" => [
                 "number" => 0
+            ],
+            "First Name" => [
+                "rich_text" => [[
+                    "text" => ["content" => $firstName]
+                ]]
+            ],
+            "Last Name" => [
+                "rich_text" => [[
+                    "text" => ["content" => $lastName]
+                ]]
             ],
             "Date Added" => [
                 "date" => [
@@ -97,13 +111,6 @@ function nff_handle_feedback_ajax() {
         }
     }
     
-/*
-    if (is_wp_error($response)) {
-        echo 'Submission failed.';
-    } else {
-        echo 'Thanks for your feedback!';
-    }
-*/    
     wp_die();
 }
 add_action('wp_ajax_nopriv_nff_submit_feedback', 'nff_handle_feedback_ajax');
@@ -116,13 +123,22 @@ function nff_upvote_script() {
         document.querySelectorAll('.nff-upvote-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const pageId = this.dataset.id;
-                const countSpan = this.parentElement.querySelector('.nff-upvote-count');
-                // instead of nextelementsibling
-//                const countSpan = this.nextElementSibling;
+                //const countSpan = this.parentElement.querySelector('.nff-upvote-count');
+                  
+                const countSpan = this.nextElementSibling;
                 let currentVotes = parseInt(countSpan.textContent, 10);
+                let newVotes = currentVotes + 1; 
 
-                // Show vote instantly
-                countSpan.textContent = currentVotes + 1;
+                // Check if already voted
+                // Record vote in localStorage and for unique key
+                // key exists = blocked vote, not = stores key
+                const voted = localStorage.getItem(`nff-voted-${pageId}`);
+                if (voted) {
+                    alert('You have already upvoted this comment.');
+                    return;
+                }
+
+                localStorage.setItem(`nff-voted-${pageId}`, 'true');
 
                 fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
                     method: 'POST',
@@ -131,7 +147,8 @@ function nff_upvote_script() {
                     },
                     body: new URLSearchParams({
                         action: 'nff_upvote',
-                        page_id: pageId
+                        page_id: pageId,
+                        upvotes: newVotes
                     })
                 })
                 .then(res => res.json())
@@ -149,6 +166,7 @@ function nff_upvote_script() {
                     countSpan.textContent = currentVotes;
                     alert('Network error during upvote.');
                 });
+                countSpan.textContent = newVotes;
             });
         });
     });
@@ -215,27 +233,52 @@ function nff_upvote_handler() {
 add_action('wp_ajax_nff_upvote', 'nff_upvote_handler');
 add_action('wp_ajax_nopriv_nff_upvote', 'nff_upvote_handler');
 
-
-
 // Shortcode to output the form
 function nff_form_shortcode() {
     ob_start(); ?>
-    <form id="notion-feedback-form" style="max-width: 600px; margin-top: 1rem; font-family: sans-serif;">
+    <form id="notion-feedback-form" style="max-width: 800px; margin-top: 1rem; font-family: sans-serlast_if;">
+        <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <input 
+                    type="text" 
+                    name="first_name" 
+                    id="nff-firstName" 
+                    placeholder="First Name"
+                    required
+                    style="width: 80%; padding:10px; font-size:16px; border:1px solid #ccc; border-radius:4px;"
+                >
+            </div>
+            <div style="flex: 1;">
+                <input 
+                    type="text" 
+                    name="last_name" 
+                    id="nff-lastName" 
+                    placeholder="Last Name"
+                    required
+                    style="width: 80%; padding:10px; font-size:16px; border:1px solid #ccc; border-radius:4px;"
+                >
+            </div>
+        </div>
+
         <label for="nff-name" style="display:block; margin-bottom: 5px;">Feedback Title</label>
-        <input 
-            type="text" 
-            name="name" 
-            id="nff-name" 
-            placeholder="Brief Description of Feedback/Suggestion" 
-            style="width:100%; margin-bottom:15px; padding:12px; font-size:16px; border-radius:6px; border:1px solid #ccc;">
+            <input 
+                type="text" 
+                name="name" 
+                id="nff-name" 
+                placeholder="Brief Description of Feedback/Suggestion" 
+                required
+                style="width:100%; margin-bottom:15px; padding:12px; font-size:16px; border-radius:6px; border:1px solid #ccc;"
+                >
 
         <label for="nff-feedback" style="display:block; margin-bottom: 5px;">Description</label>
-        <textarea 
-            name="feedback" 
-            id="nff-feedback" 
-            placeholder="Please leave feedback or suggestions in detail" 
-            required 
-            style="width:100%; height:180px; margin-bottom:15px; padding:14px; font-size:16px; border-radius:6px; border:1px solid #ccc; resize: vertical;"></textarea>
+            <textarea 
+                name="feedback" 
+                id="nff-feedback" 
+                placeholder="Please leave feedback or suggestions in detail" 
+                required 
+                style="width:100%; height:180px; margin-bottom:15px; padding:14px; font-size:16px; border-radius:6px; border:1px solid #ccc; resize: vertical;"
+                >
+            </textarea>
 
         <button 
             type="submit" 
@@ -248,20 +291,6 @@ function nff_form_shortcode() {
     <?php
     return ob_get_clean();
 }
-
-/*
-function nff_form_shortcode() {
-    ob_start(); ?>
-    <form id="notion-feedback-form">
-        <input type="text" name="name" placeholder="Feedback Header">
-        <textarea name="feedback" placeholder="Enter feedback or suggestions here" required></textarea>
-        <button type="submit">Submit</button>
-    </form>
-    <div id="nff-message"></div>
-    <?php
-    return ob_get_clean();
-}
-*/    
 add_shortcode('notion_feedback_form', 'nff_form_shortcode');
 
 //display feedback
@@ -299,6 +328,7 @@ function nff_display_feedback_shortcode() {
         $name = $props['Name']['title'][0]['text']['content'] ?? 'Anonymous';
         $feedback = $props['Feedback']['rich_text'][0]['text']['content'] ?? '';
         $upvotes = $props['Upvotes']['number'] ?? 0;
+
         $pageId = $item['id'];
           //tags and color based on notion's color
         $tag = $props['Tags']['select']['name'] ?? '';
@@ -332,46 +362,25 @@ function nff_display_feedback_shortcode() {
         echo '<strong style="display:block; margin-bottom:5px; font-size:16px;">' . esc_html($name) . '</strong>';
         echo '<p style="margin:0; font-size:15px;">' . esc_html($feedback) . '</p>';
         echo '</div>';
-
+        
         if (!empty($tag)) {
             echo '<span style="display:inline-block; top:10px; right:10px; display:inline-block; border-radius:12px; padding:4px 10px; font-size:12px; font-weight:500; ' . esc_attr($tagStyle) . '">' . esc_html($tag) . '</span>';
         }
         echo '<div class="nff-feedback-upvote" style="display:flex; flex-direction:column; align-items:center; gap:5px;">';
-        echo '<button class="nff-upvote-btn" data-id="' . esc_attr($pageId) . '" style="font-size:20px; border:none; background:none; cursor:pointer;">↑</button>';
+        echo '<button class="nff-upvote-btn" data-id="' . esc_attr($pageId) . '">↑</button>';
         echo '<span class="nff-upvote-count" style="font-size:14px;">' . intval($upvotes) . '</span>';
         echo '</div>';
-
+        
         echo '</div>';
     }
 
     echo '</div>';
-    /*
-    echo '<div class="nff-feedback-list" style="display:flex; flex-direction:column; gap:20px; max-width:600px; margin-top:2rem;">';
-    foreach ($data['results'] as $item) {
-        $props = $item['properties'];
-
-        $name = $props['Name']['title'][0]['text']['content'] ?? 'Anonymous';
-        $feedback = $props['Feedback']['rich_text'][0]['text']['content'] ?? '';
-        $upvotes = $props['Upvotes']['number'] ?? 0;
-
-        $pageId = $item['id']; // will be used later for upvote functionality
-
-        echo '<div class="nff-comment" style="border:1px solid #ccc; border-radius:6px; padding:15px; display:flex; justify-content:space-between; align-items:flex-start;">';
-
-        echo '<div style="flex-grow:1;">';
-        echo '<strong style="display:block; margin-bottom:5px; font-size:16px;">' . esc_html($name) . '</strong>';
-        echo '<p style="margin:0; font-size:15px;">' . esc_html($feedback) . '</p>';
-        echo '</div>';
-
-        echo '<div style="display:flex; flex-direction:column; align-items:center; gap:5px;">';
-        echo '<button class="nff-upvote-btn" data-id="' . esc_attr($pageId) . '" style="font-size:20px; border:none; background:none; cursor:pointer;">↑</button>';
-        echo '<span style="font-size:14px;">' . intval($upvotes) . '</span>';
-        echo '</div>';
-
-        echo '</div>';
-    }
-    echo '</div>';
-    */
     return ob_get_clean();
 }
 add_shortcode('notion_feedback_list', 'nff_display_feedback_shortcode');
+
+function nff_enqueue_styles() {
+    wp_enqueue_style('nff-style', plugin_dir_url(__FILE__) . 'styles/nff-style.css');
+}
+add_action('wp_enqueue_scripts', 'nff_enqueue_styles');
+
