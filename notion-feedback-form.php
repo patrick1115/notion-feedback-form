@@ -10,9 +10,9 @@
  * Author: Patrick 
  */
 
-// Replace these with Notion API credentials
-define('NOTION_API_KEY', 'NOTION_API_KEY');
-define('NOTION_DATABASE_ID', 'DATABASE_ID');
+// Replace these with your actual Notion API credentials
+define('NOTION_API_KEY', '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');
+define('NOTION_DATABASE_ID', '1d1fac36fa81805bbca2e2c053200f51');
 
 // Enqueue inline JavaScript for AJAX submission
 function nff_enqueue_scripts() {
@@ -143,6 +143,7 @@ function nff_upvote_script() {
                 }
 
                 localStorage.setItem(`nff-voted-${pageId}`, 'true');
+                button.classList.add('voted'); 
 
                 fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
                     method: 'POST',
@@ -162,12 +163,15 @@ function nff_upvote_script() {
                         countSpan.textContent = data.upvotes;
                     } else {
                         countSpan.textContent = currentVotes;
+                        button.classList.remove('voted'); 
                         alert('Failed to save upvote to Notion. Reason: ' + (data.message || 'Unknown error'));
                     }
                 })
                 .catch(err => {
                     console.error('Upvote network error:', err);
                     countSpan.textContent = currentVotes;
+                    button.classList.remove('voted'); 
+                    localStorage.removeItem(voted); 
                     alert('Network error during upvote.');
                 });
                 countSpan.textContent = newVotes;
