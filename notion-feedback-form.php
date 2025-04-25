@@ -11,8 +11,8 @@
  */
 
 // Replace these with your actual Notion API credentials
-define('NOTION_API_KEY', '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');
-define('NOTION_DATABASE_ID', '1d1fac36fa81805bbca2e2c053200f51');
+define('NOTION_API_KEY', 'ADD_KEY_HERE');
+define('NOTION_DATABASE_ID', 'ADD_ID_HERE');
 
 // Enqueue inline JavaScript for AJAX submission
 function nff_enqueue_scripts() {
