@@ -4,11 +4,16 @@
     width: 40px;
     height: 30px;
     border: none;
-    background: none;
+    background: none !important;
     cursor: pointer;
     line-height: 1;
     color: #333;
     transition: color 0.5s ease;
+}
+
+.nff-upvote-btn.voted {
+    color: #cb3737; 
+    cursor: default;
 }
 
 .nff-upvote-btn:hover {
