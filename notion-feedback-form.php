@@ -6,13 +6,21 @@
  *                  - First and last name added to form. 
  *                  - Upvote button color change on hover. 
  *                  - Restricts user from multiple upvotes per session. 
- * Version: 1.10
+ *              Admin tab on the Dashboard
+ * 
+ * Version: 1.20
  * Author: Patrick 
  */
 
-// Replace these with your actual Notion API credentials
-define('NOTION_API_KEY', 'ADD_KEY_HERE');
-define('NOTION_DATABASE_ID', 'ADD_ID_HERE');
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+require_once plugin_dir_path(__FILE__) . 'admin/admin-menu.php'; 
+
+// Replace these with Notion API credentials
+define('NOTION_API_KEY', 'NOTION_API_KEY');
+define('NOTION_DATABASE_ID', 'DATABASE_ID');
 
 // Enqueue inline JavaScript for AJAX submission
 function nff_enqueue_scripts() {
