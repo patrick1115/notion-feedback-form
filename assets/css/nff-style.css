@@ -1,0 +1,187 @@
+/* Form Styles */
+.notion-feedback-form {
+    max-width: 800px;
+    margin: 20px auto;
+    font-family: sans-serif;
+}
+
+.nff-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.nff-col {
+    flex: 1;
+}
+
+.nff-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.nff-textarea {
+    width: 100%;
+    height: 180px;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    resize: vertical;
+}
+
+.nff-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.nff-button {
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    background-color: #0073aa;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.nff-button:hover {
+    background-color: #005a87;
+}
+
+.nff-message {
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+/* Feedback List Styles */
+.nff-filter-bar {
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.nff-filter-btn {
+    padding: 8px 16px;
+    border: none;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.nff-filter-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.nff-filter-btn.active {
+    background-color: #0073aa;
+    color: white;
+}
+
+.nff-comment {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s;
+}
+
+.nff-comment:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.nff-comment-content {
+    flex-grow: 1;
+}
+
+.nff-comment-title {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.nff-comment-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.nff-tag {
+    display: inline-block;
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 10px;
+}
+
+.nff-feedback-upvote {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-left: 15px;
+}
+
+.nff-upvote-btn {
+    font-size: 26px;
+    font-weight: bold;
+    width: 40px;
+    height: 30px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    line-height: 1;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.nff-upvote-btn.voted {
+    color: #cb3737;
+    cursor: default;
+}
+
+.nff-upvote-btn:hover:not(.voted) {
+    color: #33c82e;
+}
+
+.nff-upvote-count {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nff-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .nff-comment {
+        flex-direction: column;
+    }
+    
+    .nff-feedback-upvote {
+        flex-direction: row;
+        justify-content: flex-end;
+        margin-top: 10px;
+        margin-left: 0;
+    }
+    
+    .nff-tag {
+        margin-top: 5px;
+        margin-left: 0;
+    }
+}
